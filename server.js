@@ -2,15 +2,19 @@ var express = require('express');
 var app = express();
 var mongojs = require('mongojs');
 var bodyParser = require('body-parser');
+var cors = require('cors');
 
-var db = mongojs("contactlist", ['contactlist']);
+var db = mongojs("mongodb://dbrandesadmin:dbrandespass@ds041992.mongolab.com:41992/dbrandes", ['contactlist']);
+
+
 app.use(bodyParser.json());
-
+app.use(cors());
 app.use(express.static(__dirname + "/public"));
 
 app.get('/contactList', function(req, res) {
     console.log("I receivet a Get requrest");
     db.contactlist.find(function(err, docs) {
+        console.log(docs);
         res.json(docs);
     });
 });
