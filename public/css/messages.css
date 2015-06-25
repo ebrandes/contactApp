@@ -1,0 +1,12 @@
+.error-messages {
+    position: relative;
+}
+.error-messages.ng-active {
+  background: #c30;
+  color: white;
+  padding: 5px;
+  border-radius: 5px;
+  margin-top: 2px;
+  position: absolute;
+}
+

@@ -1,5 +1,8 @@
-myApp.controller('contactCtrl', ['$scope', '$http', 'ngDialog', function($scope, $http, ngDialog) {
+myApp.controller('contactCtrl', ['$scope', '$http', 'ngDialog', 'FileUploader', function($scope, $http, ngDialog, FileUploader) {
 
+    $scope.uploader = new FileUploader({
+           url: '/uploadFile/'
+    });
 
     var refresh = function() {
         $http.get('/contactList').success(function(res) {
@@ -10,28 +13,35 @@ myApp.controller('contactCtrl', ['$scope', '$http', 'ngDialog', function($scope,
 
     refresh();
 
-    $scope.addContact = function(contact) {
-        $http.post('/contactList', contact).success(function(res) {
-            refresh();
-        });
-    };
-
     $scope.updateContact = function(contact) {
-        var dialogUpdateContact = ngDialog.open({
-            templateUrl: '/views/modals/editContact.html',
+        ngDialog.openConfirm({
+            templateUrl: '/views/modals/contact.html',
             data: angular.copy(contact)
-        });
-        dialogUpdateContact.closePromise.then(function(data) {
-            var editedContact = data.value;
-            $http.put('/contactList/' + editedContact._id, editedContact).success(function(res) {
-                refresh();
-            });
+        }).then(function(data) {
+            var contact = data;
+            if (contact._id) {
+                $http.put('/contactList/' + contact._id, contact).success(function(res) {
+                    refresh();
+                });
+            } else {
+                $http.post('/contactList', contact).success(function(res) {
+                    refresh();
+                });
+            }
         })
     };
 
     $scope.removeContact = function(id) {
-        $http.delete('/contactList/' + id).success(function(res) {
-            refresh();
+        ngDialog.openConfirm({
+            templateUrl: '/views/modals/confirm.html'
+        }).then(function(value) {
+            if (value) {
+                $http.delete('/contactList/' + id).success(function(res) {
+                    refresh();
+                });
+            }
+        }, function(reason) {
+            console.log('Modal promise rejected. Reason: ', reason);
         });
     };
 
